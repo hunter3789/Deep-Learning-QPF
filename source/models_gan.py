@@ -11,17 +11,9 @@ else:
     print("CUDA not available, using CPU")
     device = torch.device("cpu")
 
-# Function to compute image gradients
-def compute_gradient(logits):
-    grad_x = torch.abs(logits[:, 1:, :] - logits[:, :-1, :])
-    grad_y = torch.abs(logits[:, :, 1:] - logits[:, :, :-1])
-    return grad_x, grad_y
-
 class RegressorLoss(nn.Module):
-    #def forward(self, logits: torch.Tensor, target: torch.Tensor, mask: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
     def forward(self, logits: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
         """
-        MSE Loss
         Args:
             logits: tensor logits
             target: tensor targets
@@ -32,37 +24,17 @@ class RegressorLoss(nn.Module):
         loss1 = nn.L1Loss(reduction='none')
         loss2 = nn.MSELoss(reduction='none')
 
-        #weights = weights[mask]
-
-        # Compute gradients for the output and target
-        #logits_grad_x, logits_grad_y = compute_gradient(logits)
-        #target_grad_x, target_grad_y = compute_gradient(target)
-
-        # Apply mask to gradients
-        #masked_output_grad_x = logits_grad_x * mask[:, 1:, :]
-        #masked_output_grad_y = logits_grad_y * mask[:, :, 1:]
-        #masked_target_grad_x = target_grad_x * mask[:, 1:, :]
-        #masked_target_grad_y = target_grad_y * mask[:, :, 1:]
-
-        # Compute the gradient loss on the masked region
-        #loss_x = torch.mean(torch.abs(masked_output_grad_x - masked_target_grad_x))
-        #loss_y = torch.mean(torch.abs(masked_output_grad_y - masked_target_grad_y))
-
         output = 0.8 * loss1(logits, target) + 0.2 * loss2(logits, target)
         output = output[mask]
 
-        #output = torch.mean(output*weights)
         output = torch.mean(output)
 
-        #constant = 1.5
-        #output += loss_x + loss_y
         return output
 
 class CrossEntropyLoss(nn.Module):
     def forward(self, logits: torch.Tensor, target: torch.LongTensor) -> torch.Tensor:
         """
         Multi-class classification loss
-        Hint: simple one-liner
 
         Args:
             logits: tensor (b, c) logits, where c is the number of classes
@@ -72,10 +44,8 @@ class CrossEntropyLoss(nn.Module):
             tensor, scalar loss
         """
         
-        #loss = nn.CrossEntropyLoss(reduction='none')
         loss = nn.CrossEntropyLoss()
         output = loss(logits, target)
-        #output = output[mask].mean()
 
         return output
 
@@ -92,7 +62,6 @@ class Regressor(torch.nn.Module):
 
             self.model = torch.nn.Sequential(
                 self.c1,
-                #self.norm,
                 self.relu,
                 self.c2,
                 self.norm,
@@ -105,7 +74,6 @@ class Regressor(torch.nn.Module):
                 self.skip = torch.nn.Identity()
 
         def forward(self, x):
-            #print(x.shape, self.skip(x).shape, self.model(x).shape)
             return self.skip(x) + self.model(x)    
 
     class BlockUp(torch.nn.Module):
@@ -129,24 +97,14 @@ class Regressor(torch.nn.Module):
                 self.skip = torch.nn.Identity()
 
         def forward(self, x):        
-            #print(x.shape, self.skip(x).shape, self.model(x).shape)
             return self.skip(x) + self.model(x)              
 
     def __init__(
         self,
         in_channels: int = 80,
     ):
-        """
-        A single model that performs segmentation and depth regression
-
-        Args:
-            in_channels: int, number of input channels
-            num_classes: int
-        """
         super().__init__()
 
-        # TODO: implement
-        #pass
         up_layers = []
         down_layers = []
         skip_layers = []
@@ -183,20 +141,6 @@ class Regressor(torch.nn.Module):
         )
 
     def forward(self, x: torch.Tensor):
-        """
-        Used in training, takes an image and returns raw logits and raw depth.
-        This is what the loss functions use as input.
-
-        Args:
-            x (torch.FloatTensor): image with shape (b, 3, h, w) and vals in [0, 1]
-
-        Returns:
-            tuple of (torch.FloatTensor, torch.FloatTensor):
-                - logits (b, num_classes, h, w)
-                - depth (b, h, w)
-        """
-        # optional: normalizes the input
-        # TODO: replace with actual forward pass
         layers = []
         for down_layer in self.down_layers:
             x = down_layer(x)
@@ -210,7 +154,6 @@ class Regressor(torch.nn.Module):
 
             x = self.up_layers[i](y)
         
-        #return logits, raw_depth
         return self.regressor(x)      
 
 class Discriminator(torch.nn.Module): 
@@ -235,7 +178,6 @@ class Discriminator(torch.nn.Module):
                 self.skip = torch.nn.Identity()
 
         def forward(self, x):
-            #print(x.shape, self.skip(x).shape, self.model(x).shape)
             return self.skip(x) + self.model(x)    
 
     def __init__(
@@ -243,17 +185,8 @@ class Discriminator(torch.nn.Module):
         in_channels: int = 81,
         num_classes: int = 2,
     ):
-        """
-        A single model that performs segmentation and depth regression
-
-        Args:
-            in_channels: int, number of input channels
-            num_classes: int
-        """
         super().__init__()
 
-        # TODO: implement
-        #pass
         up_layers = []
         down_layers = []
         skip_layers = []
@@ -277,26 +210,10 @@ class Discriminator(torch.nn.Module):
         )
 
     def forward(self, a: torch.Tensor, b: torch.Tensor):
-        """
-        Used in training, takes an image and returns raw logits and raw depth.
-        This is what the loss functions use as input.
-
-        Args:
-            x (torch.FloatTensor): image with shape (b, 3, h, w) and vals in [0, 1]
-
-        Returns:
-            tuple of (torch.FloatTensor, torch.FloatTensor):
-                - logits (b, num_classes, h, w)
-                - depth (b, h, w)
-        """
-        # optional: normalizes the input
-        # TODO: replace with actual forward pass
-
         x = torch.cat((a,b),1)
         for down_layer in self.down_layers:
             x = down_layer(x)
        
-        #return logits, raw_depth
         return self.patch(x)      
 
 MODEL_FACTORY = {
@@ -309,10 +226,6 @@ def load_model(
     with_weights: bool = False,
     **model_kwargs,
 ) -> torch.nn.Module:
-    """
-    Called by the grader to load a pre-trained model by name
-    """
-    #print(MODEL_DIR)
     m = MODEL_FACTORY[model_name](**model_kwargs)
 
     if with_weights:
@@ -330,9 +243,6 @@ def load_model(
 
 
 def save_model(model: torch.nn.Module) -> str:
-    """
-    Use this function to save your model in train.py
-    """
     model_name = None
 
     for n, m in MODEL_FACTORY.items():
@@ -347,36 +257,3 @@ def save_model(model: torch.nn.Module) -> str:
 
     return output_path
 
-
-def calculate_model_size_mb(model: torch.nn.Module) -> float:
-    """
-    Args:
-        model: torch.nn.Module
-
-    Returns:
-        float, size in megabytes
-    """
-    return sum(p.numel() for p in model.parameters()) * 4 / 1024 / 1024
-
-
-def debug_model(batch_size: int = 1):
-    """
-    Test your model implementation
-
-    Feel free to add additional checks to this function -
-    this function is NOT used for grading
-    """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    sample_batch = torch.rand(batch_size, 3, 64, 64).to(device)
-
-    print(f"Input shape: {sample_batch.shape}")
-
-    model = load_model("classifier", in_channels=3, num_classes=6).to(device)
-    output = model(sample_batch)
-
-    # should output logits (b, num_classes)
-    print(f"Output shape: {output.shape}")
-
-
-if __name__ == "__main__":
-    debug_model()
