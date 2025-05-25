@@ -15,19 +15,18 @@ class MetDataLoader:
         data_path = Path(self.episode_paths[sample["_idx"]])
 
         sample["image"] = np.load(data_path)['image']
+        # normalize (standardize) the input
         sample["image"] = (sample["image"] - sample["_mean"][:,None,None]) / sample["_std"][:,None,None]
+        # add topo data
         sample["image"] = np.concatenate([sample["image"], sample["_topo"][None,:,:]], axis=0).astype(np.float32)
 
+        # pre-process the label
         sample["label"] = np.load(data_path)['label']
-        #sample["case"] = int(str(data_path).split(".")[1])
         sample["mask"] = np.where(sample["label"] < 0, False, True)
         sample["label"] = np.where(sample["label"] < 0, 0, sample["label"])
         constant = 0.1
         sample["label"] = np.log10(sample["label"] + constant)
         sample["label"] = (sample["label"] - sample["_label_mean"]) / sample["_label_std"]
-
-        #sample["weights"] = np.power(np.exp(np.abs(sample["label"])), 0.5)
-        #sample["weights"] = gaussian_filter(sample["weights"], sigma=1.0)
 
         return sample
 
@@ -65,10 +64,6 @@ class MetDataset(Dataset):
     def get_transform(self, transform_pipeline: str):
         """
         Creates a pipeline for processing data.
-
-        Feel free to add your own pipelines (e.g. for data augmentation).
-        Note that the grader will choose one of the predefined pipelines,
-        so be careful if you modify the existing ones.
         """
         xform = None
 
@@ -114,7 +109,6 @@ def load_data(
 ):
     """
     Constructs the dataset/dataloader.
-    The specified transform_pipeline must be implemented in the RoadDataset class.
 
     Args:
         transform_pipeline (str): 'default', 'aug', or other custom transformation pipelines
@@ -131,8 +125,6 @@ def load_data(
     filepaths = sorted(filepaths)
 
     datasets = []
-    #for episode_path in sorted(filepaths):
-        #datasets.append(MetDataset(episode_path, transform_pipeline=transform_pipeline))
 
     datasets.append(MetDataset(mean=mean, std=std, topo=topo, label_mean=label_mean, label_std=label_std, episode_paths=filepaths, transform_pipeline=transform_pipeline))
     dataset = ConcatDataset(datasets)
