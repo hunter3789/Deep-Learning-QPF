@@ -1,7 +1,3 @@
-"""
-Usage:
-    python3 -m homework.train_planner --your_args here
-"""
 import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -32,9 +28,7 @@ def visualize(
 
     model = load_model(model_name, epoch, with_weights=True)
     model = model.to(device)
-    #model.train()
 
-    #mean_std_file = '../dataset/trainset_agg_mean_std.npz'
     mean_std_file = '../dataset/trainset_ssrd_agg_mean_std.npz'
     mean, std = np.load(mean_std_file)['mean'], np.load(mean_std_file)['std']
 
@@ -44,7 +38,6 @@ def visualize(
     label_mean_std_file = '../dataset/trainset_label_agg_mean_std.npz'
     label_mean, label_std = np.load(label_mean_std_file)['mean'], np.load(label_mean_std_file)['std']
 
-    #val_data = load_data(mean=mean, std=std, topo=topo, case=case, dataset_path="../dataset/input/{case:%Y%m}/{case:%d}".format(case=case), shuffle=False, batch_size=1, num_workers=0, transform_pipeline="default")
     val_data = load_data(mean=mean, std=std, topo=topo, case=case, dataset_path="../dataset/input_ssrd/{case:%Y%m}/{case:%d}".format(case=case), shuffle=False, batch_size=1, num_workers=0, transform_pipeline="default")
 
 
@@ -56,8 +49,6 @@ def visualize(
     cx, cy = map_SX, map_SY
     projy = np.array([2*(y-map_SY) for y in range(lat.shape[0])])
     projx = np.array([2*(x-map_SX) for x in range(lat.shape[1])])
-    #print(projy.shape)
-    #print(projx.shape)
     margin = 20
 
     tp = np.zeros_like(lat)
@@ -66,9 +57,6 @@ def visualize(
 
     with torch.inference_mode():
         for data in val_data:
-            #if case != args_case:
-            #    continue
-
             img, label, mask, fhr = data['image'], data['label'], data['mask'], data['fhr']
             img = img.to(device)
 
@@ -87,10 +75,6 @@ def visualize(
             tp = tp + pred
 
             fhr = fhr.detach().cpu().numpy()[0]
-            #print(fhr)
-
-            #print(pred.shape)
-            #np.savez_compressed('./output/{case:%Y%m}/{case:%d}/pred.regress.{case:%Y%m%d%H}00.f{fhr:03d}'.format(case=case, fhr=fhr), pred=pred, label=label, mask=mask)
 
             # Create a new NetCDF file
             nc_file = './output/{case:%Y%m}/{case:%d}/pred.regress.{case:%Y%m%d%H}00.f{fhr:03d}.nc'.format(case=case, fhr=fhr)
@@ -255,5 +239,4 @@ if __name__ == "__main__":
     parser.add_argument("--case", type=parse_case)
     parser.add_argument('--epoch', dest='epoch', type=int, default=0)
 
-    # pass all arguments to train
     visualize(**vars(parser.parse_args()))
