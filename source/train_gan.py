@@ -1,7 +1,3 @@
-"""
-Usage:
-    python3 -m homework.train_planner --your_args here
-"""
 import argparse
 from datetime import datetime
 from pathlib import Path
@@ -22,7 +18,6 @@ def train(
     batch_size: int = 32,
     seed: int = 2024,
     mode: str = 'scratch',
-    #thresh: float = 40.,
     **kwargs,
 ):
     if torch.cuda.is_available():
@@ -51,12 +46,8 @@ def train(
         print("input mode error")
         exit()
 
-    print(mode)
-    print(lr)
-    #exit()
     model_gen = model_gen.to(device)
     model_dis = model_dis.to(device)
-    #model.train()
 
     mean_std_file = '../dataset/trainset_ssrd_agg_mean_std.npz'
     mean, std = np.load(mean_std_file)['mean'], np.load(mean_std_file)['std']
@@ -76,7 +67,6 @@ def train(
     optimizer_gen = torch.optim.AdamW(model_gen.parameters(), lr=lr, weight_decay=0.01)
     optimizer_dis = torch.optim.AdamW(model_dis.parameters(), lr=lr, weight_decay=0.01)
 
-    #thresh = (thresh - label_mean) / label_std
     constant = 0.1
 
     thresh = np.array([0.1, 0.5, 1, 5, 10, 15, 20, 25, 30, 40, 50])
@@ -84,8 +74,7 @@ def train(
 
     cm = []
     cm_step = []
-    #print(thresh)
-    #exit()
+
     for th in thresh_transformed:
         cm.append(ContingencyMetric(thresh = th))
         cm_step.append(ContingencyMetric(thresh = th))
@@ -102,8 +91,6 @@ def train(
         model_dis.train()
         model_gen.train()
         for data in train_data:
-            #img, label, mask, weights = data['image'], data['label'], data['mask'], data['weights']
-            #img, label, mask, weights = img.to(device), label.to(device), mask.to(device), weights.to(device)
             img, label, mask = data['image'], data['label'], data['mask']
             img, label, mask = img.to(device), label.to(device), mask.to(device)
             label = label.type(torch.float32)
@@ -117,9 +104,6 @@ def train(
 
             dims = (fake_dis.size(0), fake_dis.size(2), fake_dis.size(3))
 
-            #print((pred[:,None,:,:] * mask[:,None,:,:]).shape, img.shape, fake_dis.shape, dims)
-            #exit()
-
             real_loss = loss_func_dis(real_dis, torch.ones(*dims, device=device, dtype=torch.long))
             fake_loss = loss_func_dis(fake_dis, torch.zeros(*dims, device=device, dtype=torch.long))
             loss_dis = 0.5 * (real_loss + fake_loss)
@@ -132,14 +116,11 @@ def train(
             fake_dis = model_dis(pred[:,None,:,:] * mask[:,None,:,:], img)
 
             adv_loss = loss_func_dis(fake_dis, torch.ones(*dims, device=device, dtype=torch.long))
-            #pix_loss = loss_func_gen(pred, label, mask, weights)
             pix_loss = loss_func_gen(pred, label, mask)
-            print(adv_loss, pix_loss)
+
             loss_gen = adv_loss + 100 * pix_loss
             loss_gen.backward()
             optimizer_gen.step()
-
-            #exit()
 
             loss = loss_gen.detach().cpu().numpy()
             losses.append(loss)
@@ -175,7 +156,6 @@ def train(
                     f"{data_num}/{len(train_data)} processed"
                     f", {data_num/len(train_data)*100:.2f}%"
                 )
-            #print(data_num)
 
         epoch_train_loss = np.mean(losses)
         print(f"train_loss={epoch_train_loss:.4f}")
@@ -185,8 +165,6 @@ def train(
             epoch_train_score.append(score)
             cm[i].reset()            
 
-        save_model(model_gen)
-        save_model(model_dis)
         # save a copy of model weights in the log directory
         torch.save(model_gen.state_dict(), log_dir / f"regressor_epoch_{epoch}.th")
         torch.save(model_dis.state_dict(), log_dir / f"discriminator_epoch_{epoch}.th")
@@ -199,15 +177,12 @@ def train(
             epoch_val_score = []
             data_num = 0
             for data in val_data:
-                #img, label, mask, weights = data['image'], data['label'], data['mask'], data['weights']
-                #img, label, mask, weights = img.to(device), label.to(device), mask.to(device), weights.to(device)
                 img, label, mask = data['image'], data['label'], data['mask']
                 img, label, mask = img.to(device), label.to(device), mask.to(device)
                 label = label.type(torch.float32)
 
                 pred = model_gen(img).squeeze()
 
-                #logger.add_scalar('val_step_loss', loss, global_val_step)
                 print(f"Val step {global_val_step + 1:10d}: ")
                 for i in range(len(cm)):
                     cm[i].add(pred, label, mask)
@@ -266,10 +241,6 @@ def train(
             logger.add_scalar('val_far_{th}'.format(th=thresh[i]), epoch_val_score[i]["FAR"], global_step)
             logger.add_scalar('val_fbias_{th}'.format(th=thresh[i]), epoch_val_score[i]["FBIAS"], global_step)
 
-
-            # print on first, last, every 10th epoch
-            #if epoch == 0 or epoch == num_epoch - 1 or (epoch + 1) % 10 == 0:
-
             print("thresh={thresh}".format(thresh=thresh[i]))
             print("train_h={epoch_train_h:8d}   train_f={epoch_train_f:8d}   train_m={epoch_train_m:8d}   train_c={epoch_train_c:8d} ".format(epoch_train_h=int(epoch_train_score[i]["H"]), 
                 epoch_train_f=int(epoch_train_score[i]["F"]), epoch_train_m=int(epoch_train_score[i]["M"]), epoch_train_c=int(epoch_train_score[i]["C"])))
@@ -298,10 +269,6 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=1e-6)
     parser.add_argument("--seed", type=int, default=2025)
     parser.add_argument("--mode", type=str, default="load")    
-    #parser.add_argument("--thresh", type=float, default=40.)      
-
-    # optional: additional model hyperparamters
-    #parser.add_argument("--num_layers", type=int, default=3)
 
     # pass all arguments to train
     train(**vars(parser.parse_args()))
