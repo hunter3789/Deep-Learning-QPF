@@ -8,7 +8,7 @@ import torch.utils.tensorboard as tb
 
 from load_dataset_gan import load_data
 from metrics_regressor import ContingencyMetric
-from models_gan import RegressorLoss, CrossEntropyLoss, load_model, save_model
+from models_gan import RegressorLoss, CrossEntropyLoss, load_model
 
 def train(
     exp_dir: str = "logs",
@@ -169,6 +169,9 @@ def train(
         torch.save(model_gen.state_dict(), log_dir / f"regressor_epoch_{epoch}.th")
         torch.save(model_dis.state_dict(), log_dir / f"discriminator_epoch_{epoch}.th")
 
+        torch.save(optimizer_gen.state_dict(), log_dir / f"regressor_optim_epoch_{epoch}.th")
+        torch.save(optimizer_dis.state_dict(), log_dir / f"discriminator_optim_epoch_{epoch}.th")
+
         # torch.inference_mode calls model.eval() and disables gradient computation
         model_gen.eval()
         model_dis.eval()
@@ -252,13 +255,12 @@ def train(
             print("  val_csi={epoch_val_csi:8.2f}   val_pod={epoch_val_pod:8.2f}   val_far={epoch_val_far:8.2f}   val_fbias={epoch_val_fbias:8.2f}".format(epoch_val_csi=epoch_val_score[i]["CSI"]*100, 
                 epoch_val_pod=epoch_val_score[i]["POD"]*100, epoch_val_far=epoch_val_score[i]["FAR"]*100, epoch_val_fbias=epoch_val_score[i]["FBIAS"]))
         
-    # save and overwrite the model in the root directory for grading
-    save_model(model_gen)
-    save_model(model_dis)
-
     # save a copy of model weights in the log directory
     torch.save(model_gen.state_dict(), log_dir / "regressor.th")
     torch.save(model_dis.state_dict(), log_dir / "discriminator.th")
+
+    torch.save(optimizer_gen.state_dict(), log_dir / "regressor_optim.th")
+    torch.save(optimizer_dis.state_dict(), log_dir / "discriminator_optim.th")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
