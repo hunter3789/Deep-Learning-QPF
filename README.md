@@ -2,4 +2,5 @@
 
 
 
-wget https://osf.io/download/ntudc/
+Training and validation dataset is at https://osf.io/ehwmv/files/osfstorage
+
