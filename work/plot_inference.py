@@ -6,6 +6,7 @@ import matplotlib.colors as mc
 from matplotlib.colors import ListedColormap
 from matplotlib.collections import LineCollection
 import struct
+from datetime import datetime, timedelta
 
 # map borderline
 def get_linecollection():
@@ -112,6 +113,9 @@ def get_linecollection():
                 x1, y1 = x2, y2
 
     return coords
+
+def parse_case(case_str):
+    return datetime.strptime(case_str, "%Y%m%d%H%M")
 
 def visualize(
     label_std,
