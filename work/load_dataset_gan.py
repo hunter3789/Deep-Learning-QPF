@@ -20,6 +20,8 @@ class MetDataLoader:
         # add topo data
         sample["image"] = np.concatenate([sample["image"], sample["_topo"][None,:,:]], axis=0).astype(np.float32)
 
+        sample["case"] = int(str(data_path).split("./")[1].split(".")[1])
+
         # pre-process the label
         sample["label"] = np.load(data_path)['label']
         sample["mask"] = np.where(sample["label"] < 0, False, True)
