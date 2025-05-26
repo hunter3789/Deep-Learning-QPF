@@ -10,4 +10,3 @@ https://colab.research.google.com/github/hunter3789/Deep_Learning_QPF/blob/main/
 
 Sample result:
 ![demo](sample.png)
-
