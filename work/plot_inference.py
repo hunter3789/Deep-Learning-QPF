@@ -114,6 +114,8 @@ def get_linecollection():
     return coords
 
 def visualize(
+    label_std,
+    label_mean,
     case,
     pred,
     label,
