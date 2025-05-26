@@ -21,7 +21,7 @@ class MetDataLoader:
         sample["image"] = np.concatenate([sample["image"], sample["_topo"][None,:,:]], axis=0).astype(np.float32)
 
         # get case (datetime)
-        sample["case"] = int(str(data_path).split("set.")[1])
+        sample["case"] = int(str(data_path).split("set.")[1].split(".npz")[0])
 
         # pre-process the label
         sample["label"] = np.load(data_path)['label']
