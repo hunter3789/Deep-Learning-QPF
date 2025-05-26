@@ -127,12 +127,12 @@ def visualize(
     **kwargs,
 ):
 
-    levels = [0, 0.25, 0.5, 1, 2, 4, 6, 8, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100]
-    levels_str = ['0', '0.25', '0.5', '1', '2', '4', '6', '8', '10', '15', '20', '25', '30', '35', '40', '45', '50', '60', '70', '80', '90', '100']
-    cmap = ListedColormap([(1,1,1), (0,236/255,236/255), (0,200/255,240/255), (0,160/255,255/255), (0,60/255,255/255), (0,255/255,0), (0,220/255,0),
-                           (0,190/255,0), (0,141/255,0), (255/255,255/255,0), (240/255,210/255,0), (231/255,180/255,0), (200/255,120/255,0),
-                           (255/255,160/255,160/255), (255/255,60/255,60/255), (230/255,0,0), (180/255,0,0), (255/255,0,255/255),
-                           (217/255,0,217/255), (164/255,0,164/255), (120/255,0,120/255)])
+    levels = [0, 0.5, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 100]
+    levels_str = ['0', '0.5', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60', '65', '70', '75', '80', '85', '90', '100']
+    cmap = ListedColormap([(1,1,1), (184/255,184/255,255/255), (127/255,153/255,229/255), (127/255,180/255,210/255), (127/255,210/255,180/255), (200/255,255/255,150/255),
+                           (150/255,255/255,120/255), (100/255,250/255,100/255), (50/255,240/255,50/255), (255/255,255/255,180/255), (255/255,255/255,130/255), (255/255,250/255,80/255),
+                           (255/255,240/255,50/255), (255/255,210/255,150/255), (255/255,180/255,120/255), (255/255,150/255,90/255), (255/255,100/255,50/255),
+                           (255/255,75/255,40/255), (255/255,50/255,30/255), (255/255,25/255,19/255), (250/255,0,0)])
 
     norm = mc.BoundaryNorm(levels, cmap.N)
 
@@ -150,7 +150,16 @@ def visualize(
 
     pred = pred*label_std + label_mean
     pred = np.power(10, pred) - 0.1
+
+    label = label*label_std + label_mean
+    label = np.power(10, label) - 0.1    
     label = np.ma.masked_where(label < 0, label)
+
+    margin = 20
+    pred[:margin,:] = np.nan
+    pred[:,:margin] = np.nan
+    pred[-margin:,:] = np.nan
+    pred[:,-margin:] = np.nan
 
     fig, ax = plt.subplots(1, 2, figsize=(12,6.25))
     ax[0].set_xlim(1,map_NX)
@@ -164,6 +173,7 @@ def visualize(
     draw1 = ax[1].pcolormesh(pred, cmap=cmap, norm=norm)
 
     lc = LineCollection(coords, linewidth=0.5, color="black")
+    ax[0].set_title("Radar estimated precipitation")
     ax[0].add_collection(lc)
     ax[0].set_aspect('equal')
     ax[0].tick_params(left = False, right = False , labelleft = False ,
@@ -174,6 +184,7 @@ def visualize(
     ax[0].spines['right'].set_visible(False)
 
     lc = LineCollection(coords, linewidth=0.5, color="black")
+    ax[1].set_title("Deep-Learning QPF")
     ax[1].add_collection(lc)
     ax[1].set_aspect('equal')
     ax[1].tick_params(left = False, right = False , labelleft = False ,
@@ -189,5 +200,4 @@ def visualize(
         
     fig.suptitle("{case:%Y.%m.%d.%H:%M} UTC".format(case=case+timedelta(hours=-9)))
     plt.tight_layout()
-    plt.show()
-            
+    plt.show()            
