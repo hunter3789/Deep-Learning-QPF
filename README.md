@@ -98,4 +98,5 @@ Variables are as follows + topography (not included in individual files) :
 | 76     | 2m Temperature (2T)     | Surface |
 | 77     | 2m Dew-point temperature (2D)      | Surface |
 | 78     | Mean Sea Level pressure (MSL)      | Surface |
-| 79     | Surface net solar ratiation (SSRD) | Surface |
+| 79     | Surface net Solar RaDiation (SSRD) | Surface |
+| 80     | Altitude | Surface |
