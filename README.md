@@ -17,7 +17,7 @@ https://colab.research.google.com/github/hunter3789/Deep_Learning_QPF/blob/main/
 [channels, height, width] = [80, 720, 576]  
 Resolution: 2km x 2km  
 
-Variables are as follows + topography (not included in individual files) : 
+Variables are as follows (altitude (topo) is not included in individual files) : 
 | Number | Variable | Level (hPa) |
 |--------|----------|-------------|
 | 1      | U-component wind (U) | 1000 |
