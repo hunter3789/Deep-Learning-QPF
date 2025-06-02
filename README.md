@@ -8,7 +8,7 @@ python train_gan.py --epoch ${epoch}
 ```
 
 **Demo inference**:  
-https://colab.research.google.com/github/hunter3789/Deep_Learning_QPF/blob/main/sample_inference.ipynb
+https://colab.research.google.com/github/hunter3789/Deep-Learning-QPF/blob/main/sample_inference.ipynb
   
 **Sample result**:  
 ![demo](sample.png)
