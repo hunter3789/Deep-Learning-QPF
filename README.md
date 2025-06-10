@@ -1,7 +1,9 @@
 # Deep Learning based QPF (post-processing)
 
+**Paper**:  
 📄Pre-print paper is out! https://doi.org/10.48550/arXiv.2506.03842
 
+**Dataset**:  
 Training and validation dataset is at https://osf.io/ehwmv/files/osfstorage  
 
 **Train DL-QPF model** (check paths for dataset):  
