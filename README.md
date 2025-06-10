@@ -1,6 +1,6 @@
 # Deep Learning based QPF (post-processing)
 
-**📄Paper**:  
+**Paper**:  
 Pre-print paper is out! https://doi.org/10.48550/arXiv.2506.03842
 
 **Dataset**:  
