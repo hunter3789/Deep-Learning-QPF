@@ -17,6 +17,9 @@ https://colab.research.google.com/github/hunter3789/Deep-Learning-QPF/blob/main/
 **Sample result**:  
 ![demo](sample.png)
   
+**Model architecture**:
+![demo](diagram.png)
+  
 **Input file description**:  
 [channels, height, width] = [80, 720, 576]  
 Resolution: 2km x 2km  
