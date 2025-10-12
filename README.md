@@ -17,7 +17,7 @@ https://colab.research.google.com/github/hunter3789/Deep-Learning-QPF/blob/main/
 **Sample result**:  
 ![demo](sample.png)
   
-**Model architecture**:
+**Model architecture (being updated)**:
 ![demo](diagram.png)
   
 **Input file description**:  
