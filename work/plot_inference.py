@@ -161,43 +161,72 @@ def visualize(
     pred[-margin:,:] = np.nan
     pred[:,-margin:] = np.nan
 
-    fig, ax = plt.subplots(1, 2, figsize=(12,6.25))
-    ax[0].set_xlim(1,map_NX)
-    ax[0].set_ylim(1,map_NY)
-    ax[1].set_xlim(1,map_NX)
-    ax[1].set_ylim(1,map_NY)
+    fig, ax = plt.subplots(2, 2, figsize=(12,12.5))
+    ax[0,0].set_xlim(margin,map_NX-margin)
+    ax[0,0].set_ylim(margin,map_NY-margin)
+    ax[0,1].set_xlim(margin,map_NX-margin)
+    ax[0,1].set_ylim(margin,map_NY-margin)
+    ax[1,0].set_xlim(margin,map_NX-margin)
+    ax[1,0].set_ylim(margin,map_NY-margin)
+    ax[1,1].set_xlim(margin,map_NX-margin)
+    ax[1,1].set_ylim(margin,map_NY-margin)
 
-    ax[0].contour(mesh_x, mesh_y, mask, colors='lightblue', linewidths=1)
-    draw0 = ax[0].pcolormesh(label, cmap=cmap, norm=norm)
-
-    draw1 = ax[1].pcolormesh(pred, cmap=cmap, norm=norm)
-
-    lc = LineCollection(coords, linewidth=0.5, color="black")
-    ax[0].set_title("Radar estimated precipitation")
-    ax[0].add_collection(lc)
-    ax[0].set_aspect('equal')
-    ax[0].tick_params(left = False, right = False , labelleft = False ,
-        labelbottom = False, bottom = False)
-    ax[0].spines['top'].set_visible(False)
-    ax[0].spines['bottom'].set_visible(False)
-    ax[0].spines['left'].set_visible(False)
-    ax[0].spines['right'].set_visible(False)
+    ax[0,0].contour(mesh_x, mesh_y, mask, colors='lightblue', linewidths=1)
+    ax[1,0].contour(mesh_x, mesh_y, mask, colors='lightblue', linewidths=1)
+    draw0 = ax[0,0].pcolormesh(label, cmap=cmap_rain, norm=norm_rain)
+    draw1 = ax[0,1].pcolormesh(pred[margin:-margin,margin:-margin], cmap=cmap_rain, norm=norm_rain)
+    draw2 = ax[1,0].pcolormesh(lgt[margin:-margin,margin:-margin], cmap=cmap_lgt, norm=norm_lgt)
+    draw3 = ax[1,1].pcolormesh(weight[margin:-margin,margin:-margin])
 
     lc = LineCollection(coords, linewidth=0.5, color="black")
-    ax[1].set_title("Deep-Learning QPF")
-    ax[1].add_collection(lc)
-    ax[1].set_aspect('equal')
-    ax[1].tick_params(left = False, right = False , labelleft = False ,
+    ax[0,0].add_collection(lc)
+    ax[0,0].set_aspect('equal')
+    ax[0,0].set_title('radar precipitation / ground truth')
+    ax[0,0].tick_params(left = False, right = False , labelleft = False ,
         labelbottom = False, bottom = False)
-    ax[1].spines['top'].set_visible(False)
-    ax[1].spines['bottom'].set_visible(False)
-    ax[1].spines['left'].set_visible(False)
-    ax[1].spines['right'].set_visible(False)
+    ax[0,0].spines['top'].set_visible(False)
+    ax[0,0].spines['bottom'].set_visible(False)
+    ax[0,0].spines['left'].set_visible(False)
+    ax[0,0].spines['right'].set_visible(False)
 
-    fig.colorbar(draw0, ax=ax[0])
-    fig.colorbar(draw1, ax=ax[1])
+    lc = LineCollection(coords, linewidth=0.5, color="black")
+    ax[0,1].add_collection(lc)
+    ax[0,1].set_aspect('equal')
+    ax[0,1].set_title('precipitation forecast')
+    ax[0,1].tick_params(left = False, right = False , labelleft = False ,
+        labelbottom = False, bottom = False)
+    ax[0,1].spines['top'].set_visible(False)
+    ax[0,1].spines['bottom'].set_visible(False)
+    ax[0,1].spines['left'].set_visible(False)
+    ax[0,1].spines['right'].set_visible(False)
 
-        
+    lc = LineCollection(coords, linewidth=0.5, color="black")
+    ax[1,0].add_collection(lc)
+    ax[1,0].set_aspect('equal')
+    ax[1,0].set_title('lightning strikes / ground truth')
+    ax[1,0].tick_params(left = False, right = False , labelleft = False ,
+        labelbottom = False, bottom = False)
+    ax[1,0].spines['top'].set_visible(False)
+    ax[1,0].spines['bottom'].set_visible(False)
+    ax[1,0].spines['left'].set_visible(False)
+    ax[1,0].spines['right'].set_visible(False)
+
+    lc = LineCollection(coords, linewidth=0.5, color="black")
+    ax[1,1].add_collection(lc)
+    ax[1,1].set_aspect('equal')
+    ax[1,1].set_title('lightning probability')
+    ax[1,1].tick_params(left = False, right = False , labelleft = False ,
+        labelbottom = False, bottom = False)
+    ax[1,1].spines['top'].set_visible(False)
+    ax[1,1].spines['bottom'].set_visible(False)
+    ax[1,1].spines['left'].set_visible(False)
+    ax[1,1].spines['right'].set_visible(False)
+
+    fig.colorbar(draw0, ax=ax[0,0], label='mm/ 3 h')
+    fig.colorbar(draw1, ax=ax[0,1], label='mm/ 3 h')
+    fig.colorbar(draw2, ax=ax[1,0])
+    fig.colorbar(draw3, ax=ax[1,1])
+       
     fig.suptitle("{case:%Y.%m.%d.%H:%M} UTC".format(case=case+timedelta(hours=-9)))
     plt.tight_layout()
     plt.show()            
