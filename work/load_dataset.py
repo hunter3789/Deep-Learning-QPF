@@ -22,6 +22,8 @@ class MetDataLoader:
 
         lgt_path = str(DATA_DIR) + '/dataset/lgt/trainset.lgt.' + str(data_path).split("./")[1].split(".")[1] + '.npz'
 
+        sample["case"] = int(str(data_path).split("./")[1].split(".")[1])
+
         sample["image"] = np.load(data_path)['image']
         sample["image"] = (sample["image"] - sample["_mean"][:,None,None]) / sample["_std"][:,None,None]
         sample["image"] = np.concatenate([sample["image"], sample["_topo"][None,:,:]], axis=0).astype(np.float32)
