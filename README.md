@@ -15,7 +15,7 @@ python train.py --epoch ${epoch}
 https://colab.research.google.com/github/hunter3789/Deep-Learning-QPF/blob/main/sample_inference.ipynb
   
 **Sample result**:  
-![demo](sample.png)
+![demo](sample.gif)
   
 **Model architecture (being updated)**:
 ![demo](diagram.png)
