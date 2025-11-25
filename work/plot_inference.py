@@ -123,6 +123,8 @@ def visualize(
     case,
     pred,
     label,
+    logit_lgt,
+    lgt,
     mask,
     **kwargs,
 ):
@@ -134,7 +136,19 @@ def visualize(
                            (255/255,240/255,50/255), (255/255,210/255,150/255), (255/255,180/255,120/255), (255/255,150/255,90/255), (255/255,100/255,50/255),
                            (255/255,75/255,40/255), (255/255,50/255,30/255), (255/255,25/255,19/255), (250/255,0,0)])
 
+    levels_lgt = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25]
+    cmap_lgt = ListedColormap([(1,1,1), (0,236/255,236/255), (0,200/255,240/255), (0,160/255,255/255), (0,60/255,255/255), (0,255/255,0), (0,220/255,0),
+                           (0,190/255,0), (0,141/255,0), (255/255,255/255,0), (240/255,210/255,0), (231/255,180/255,0), (200/255,120/255,0),
+                           (255/255,160/255,160/255), (255/255,60/255,60/255), (230/255,0,0), (180/255,0,0), (255/255,0,255/255),
+                           (217/255,0,217/255), (164/255,0,164/255), (120/255,0,120/255)])
+
+    levels_prob = np.linspace(0,1,11)
+    levels_prob_str = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
+    cmap_prob = plt.get_cmap('BuPu')
+
     norm = mc.BoundaryNorm(levels, cmap.N)
+    norm_prob = mc.BoundaryNorm(levels_prob, cmap_prob.N)
+    norm_lgt = mc.BoundaryNorm(levels_lgt, cmap_lgt.N)
 
     coords = get_linecollection()
     map_NX, map_NY, map_SX, map_SY = 576, 720, 560/2, 840/2
@@ -147,6 +161,8 @@ def visualize(
     pred  = pred.detach().cpu().numpy()
     label = label.detach().cpu().numpy()
     mask  = mask.detach().cpu().numpy()
+    logit_lgt = logit_lgt.detach().cpu().numpy()
+    lgt  = lgt.detach().cpu().numpy()
 
     pred = pred*label_std + label_mean
     pred = np.power(10, pred) - 0.1
@@ -173,10 +189,10 @@ def visualize(
 
     ax[0,0].contour(mesh_x, mesh_y, mask, colors='lightblue', linewidths=1)
     ax[1,0].contour(mesh_x, mesh_y, mask, colors='lightblue', linewidths=1)
-    draw0 = ax[0,0].pcolormesh(label, cmap=cmap_rain, norm=norm_rain)
-    draw1 = ax[0,1].pcolormesh(pred[margin:-margin,margin:-margin], cmap=cmap_rain, norm=norm_rain)
+    draw0 = ax[0,0].pcolormesh(label, cmap=cmap, norm=norm)
+    draw1 = ax[0,1].pcolormesh(pred[margin:-margin,margin:-margin], cmap=cmap, norm=norm)
     draw2 = ax[1,0].pcolormesh(lgt[margin:-margin,margin:-margin], cmap=cmap_lgt, norm=norm_lgt)
-    draw3 = ax[1,1].pcolormesh(weight[margin:-margin,margin:-margin])
+    draw3 = ax[1,1].pcolormesh(logit_lgt[margin:-margin,margin:-margin], cmap=cmap_prob, norm=norm_prob)
 
     lc = LineCollection(coords, linewidth=0.5, color="black")
     ax[0,0].add_collection(lc)
