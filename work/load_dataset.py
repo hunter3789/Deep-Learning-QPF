@@ -7,7 +7,11 @@ from torch.utils.data import ConcatDataset, DataLoader, Dataset
 from torchvision import transforms as tv_transforms
 from scipy.ndimage import gaussian_filter
 
-DATA_DIR = Path(__file__).resolve().parent.parent
+if "__file__" in globals():
+    DATA_DIR = Path(__file__).resolve().parent.parent
+else:
+    # Colab environment
+    DATA_DIR = Path.cwd()
 
 class MetDataLoader:
     def __init__(self, episode_paths: list):
