@@ -17,7 +17,7 @@ def get_linecollection():
 
     coords = []
 
-    map_file = './work/files/DFS_mapH5s.bln'
+    map_file = './dataset/DFS_mapH5s.bln'
     with open(map_file, mode='rb') as file:
         while True:
             data = file.read(4*2)
