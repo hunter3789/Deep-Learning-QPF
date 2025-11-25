@@ -53,7 +53,7 @@ def train(
     model_dis = model_dis.to(device)
     #print(model_gen)
 
-    mean_std_file = '../dataset/trainset_ssrd_agg_mean_std.npz'
+    mean_std_file = '../dataset/trainset_agg_mean_std.npz'
     mean, std = np.load(mean_std_file)['mean'], np.load(mean_std_file)['std']
 
     label_mean_std_file = '../dataset/trainset_label_agg_mean_std.npz'
@@ -67,8 +67,8 @@ def train(
     weight_per_class = np.sqrt(weight_per_class)
     print(weight_per_class)
 
-    train_data = load_data(mean=mean, std=std, topo=topo, label_mean=label_mean, label_std=label_std, weight_per_class=weight_per_class, dataset_path="../dataset/train_ssrd", shuffle=True, batch_size=batch_size, num_workers=0, transform_pipeline="default")
-    val_data = load_data(mean=mean, std=std, topo=topo, label_mean=label_mean, label_std=label_std, weight_per_class=weight_per_class, dataset_path="../dataset/val_ssrd", shuffle=True, batch_size=batch_size, num_workers=0, transform_pipeline="default")
+    train_data = load_data(mean=mean, std=std, topo=topo, label_mean=label_mean, label_std=label_std, weight_per_class=weight_per_class, dataset_path="../dataset/train", shuffle=True, batch_size=batch_size, num_workers=0, transform_pipeline="default")
+    val_data = load_data(mean=mean, std=std, topo=topo, label_mean=label_mean, label_std=label_std, weight_per_class=weight_per_class, dataset_path="../dataset/val", shuffle=True, batch_size=batch_size, num_workers=0, transform_pipeline="default")
 
     # create loss function and optimizer
     loss_func_dis = BCELoss()
