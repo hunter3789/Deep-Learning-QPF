@@ -1,4 +1,4 @@
-# Deep Learning based QPF (post-processing)
+# Deep Learning based Precipitation/Lightning Forecast (post-processing)
 
 **Paper**:  
 Pre-print paper is out! https://doi.org/10.48550/arXiv.2506.03842
@@ -6,9 +6,9 @@ Pre-print paper is out! https://doi.org/10.48550/arXiv.2506.03842
 **Dataset**:  
 Training and validation dataset is at https://osf.io/ehwmv/files/osfstorage  
 
-**Train DL-QPF model** (check paths for dataset):  
+**Train DL-Precipitation/Lightning Forecast model** (check paths for dataset):  
 ```
-python train_gan.py --epoch ${epoch}
+python train.py --epoch ${epoch}
 ```
 
 **Demo inference**:  
