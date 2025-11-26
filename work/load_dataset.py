@@ -21,7 +21,7 @@ class MetDataLoader:
         data_path = Path(self.episode_paths[sample["_idx"]])
 
         # parsing case (datetime)
-        sample["case"] = int(str(data_path).split("set.")[1])
+        sample["case"] = int(str(data_path).split("set.")[1].split(".")[1])
         lgt_path = str(DATA_DIR) + '/dataset/lgt/trainset.lgt.' + str(sample["case"]) + '.npz'
 
         # input data
