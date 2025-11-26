@@ -19,28 +19,36 @@ class MetDataLoader:
 
     def __call__(self, sample: dict):
         data_path = Path(self.episode_paths[sample["_idx"]])
-        lgt_path = str(DATA_DIR) + '/dataset/lgt/trainset.lgt.' + str(data_path).split("./")[1].split(".")[1] + '.npz'
-        sample["case"] = int(str(data_path).split("./")[1].split(".")[1])
 
+        # parsing case (datetime)
+        sample["case"] = int(str(data_path).split("set.")[1])
+        lgt_path = str(DATA_DIR) + '/dataset/lgt/trainset.lgt.' + str(sample["case"]) + '.npz'
+
+        # input data
         sample["image"] = np.load(data_path)['image']
         sample["image"] = (sample["image"] - sample["_mean"][:,None,None]) / sample["_std"][:,None,None]
         sample["image"] = np.concatenate([sample["image"], sample["_topo"][None,:,:]], axis=0).astype(np.float32)
 
+        # label and mask
         sample["label"] = np.load(data_path)['label']
         sample["mask"] = np.where(sample["label"] < 0, False, True)
 
+        # rain area
         sample["detected"] = np.where(sample["label"] < 0.1, 0.0, 1.0)
 
+        # lightning data
         sample["lgt"] = np.load(lgt_path)['label']
         sample["lgt_strikes"] = np.where(sample["lgt"] < 1., 0., sample["lgt"])
         sample["bool"] = np.where(sample["lgt"] < 1., 0, 1)
         sample["lgt"] = np.where(sample["lgt"] < 1., 0.0, 1.0)
 
+        # transform
         sample["label"] = np.where(sample["label"] < 0, 0, sample["label"])
         constant = 0.1
         sample["label"] = np.log10(sample["label"] + constant)
         sample["label"] = (sample["label"] - sample["_label_mean"]) / sample["_label_std"]
 
+        # weight map
         sample["weights"] = sample["_weight_per_class"][sample["bool"]]
         sample["weights"] = gaussian_filter(sample["weights"], sigma=1.0)
 
