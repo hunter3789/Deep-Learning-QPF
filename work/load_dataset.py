@@ -19,9 +19,7 @@ class MetDataLoader:
 
     def __call__(self, sample: dict):
         data_path = Path(self.episode_paths[sample["_idx"]])
-
         lgt_path = str(DATA_DIR) + '/dataset/lgt/trainset.lgt.' + str(data_path).split("./")[1].split(".")[1] + '.npz'
-
         sample["case"] = int(str(data_path).split("./")[1].split(".")[1])
 
         sample["image"] = np.load(data_path)['image']
@@ -34,6 +32,7 @@ class MetDataLoader:
         sample["detected"] = np.where(sample["label"] < 0.1, 0.0, 1.0)
 
         sample["lgt"] = np.load(lgt_path)['label']
+        sample["lgt_strikes"] = np.where(sample["lgt"] < 1., 0., sample["lgt"])
         sample["bool"] = np.where(sample["lgt"] < 1., 0, 1)
         sample["lgt"] = np.where(sample["lgt"] < 1., 0.0, 1.0)
 
