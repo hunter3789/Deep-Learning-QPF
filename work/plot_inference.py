@@ -190,9 +190,9 @@ def visualize(
     ax[0,0].contour(mesh_x, mesh_y, mask, colors='lightblue', linewidths=1)
     ax[1,0].contour(mesh_x, mesh_y, mask, colors='lightblue', linewidths=1)
     draw0 = ax[0,0].pcolormesh(label, cmap=cmap, norm=norm)
-    draw1 = ax[0,1].pcolormesh(pred[margin:-margin,margin:-margin], cmap=cmap, norm=norm)
-    draw2 = ax[1,0].pcolormesh(lgt[margin:-margin,margin:-margin], cmap=cmap_lgt, norm=norm_lgt)
-    draw3 = ax[1,1].pcolormesh(logit_lgt[margin:-margin,margin:-margin], cmap=cmap_prob, norm=norm_prob)
+    draw1 = ax[0,1].pcolormesh(pred, cmap=cmap, norm=norm)
+    draw2 = ax[1,0].pcolormesh(lgt, cmap=cmap_lgt, norm=norm_lgt)
+    draw3 = ax[1,1].pcolormesh(logit_lgt, cmap=cmap_prob, norm=norm_prob)
 
     lc = LineCollection(coords, linewidth=0.5, color="black")
     ax[0,0].add_collection(lc)
