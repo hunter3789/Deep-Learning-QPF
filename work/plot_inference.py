@@ -240,7 +240,7 @@ def visualize(
 
     fig.colorbar(draw0, ax=ax[0,0], label='mm/ 3 h')
     fig.colorbar(draw1, ax=ax[0,1], label='mm/ 3 h')
-    fig.colorbar(draw2, ax=ax[1,0])
+    fig.colorbar(draw2, ax=ax[1,0], label='strikes/ 3 h')
     fig.colorbar(draw3, ax=ax[1,1])
        
     fig.suptitle("{case:%Y.%m.%d.%H:%M} UTC".format(case=case+timedelta(hours=-9)))
