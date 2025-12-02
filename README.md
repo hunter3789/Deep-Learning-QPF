@@ -1,6 +1,6 @@
 # Deep Learning based Precipitation/Lightning Forecasting (post-processing)
 
-**Paper**:  
+**Paper (Jun 2025)**:  
 Pre-print paper is out! https://doi.org/10.48550/arXiv.2506.03842
 
 **🔥 Major Improvement (Nov 2025)**:  
