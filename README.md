@@ -3,7 +3,8 @@
 **Paper**:  
 Pre-print paper is out! https://doi.org/10.48550/arXiv.2506.03842
 
-**Major Improvement (Nov 2025)**:  
+**🔥 Major Improvement (Nov 2025)**:  
+Added a lightning-based weight map, resulting in significantly improved detection of localized convective showers.
 ![image](comparison_sample.png)
 
 **Dataset**:  
