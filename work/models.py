@@ -11,7 +11,7 @@ else:
     print("CUDA not available, using CPU")
     device = torch.device("cpu")
 
-class RegressorLoss(nn.Module):
+class MultiHeadLoss(nn.Module):
     def __init__(self):
         super().__init__()
         self.BCEloss = nn.BCEWithLogitsLoss(reduction='none')
@@ -19,24 +19,25 @@ class RegressorLoss(nn.Module):
 
     def forward(self, pred: torch.Tensor, logits: torch.Tensor, logits_lgt: torch.Tensor, target: torch.Tensor, mask: torch.Tensor, detected: torch.Tensor, lgt: torch.Tensor, weights: torch.Tensor, lambda_occ: float = 1.0, lambda_amt: float = 1.0, lambda_lgt: float = 1.0) -> torch.Tensor:
         """
-        Loss
-        Args:
-            logits: tensor logits
-            target: tensor targets
-
-        Returns:
-            tensor, scalar loss
+        Combined loss used for the multi-head model:
+        - Occurrence (binary rain detection)
+        - Amount (regression for rainfall)
+        - Lightning detection
+        Includes pixel-wise mask and custom pixel-wise weights.
         """
         weights = weights[mask]
 
+        # Occurrence (binary rain detection)
         logits_loss = self.BCEloss(logits, detected)
         logits_loss = logits_loss[mask]
         logits_loss = torch.mean(logits_loss*weights)
 
+        # Lightning detection
         lgt_loss = self.BCEloss(logits_lgt, lgt)
         lgt_loss = lgt_loss[mask]
         lgt_loss = torch.mean(lgt_loss*weights)
 
+        # Amount (regression for rainfall)
         all_pixel_loss = self.mse_loss(pred, target)
 
         pred_loss = all_pixel_loss[mask]
@@ -45,6 +46,7 @@ class RegressorLoss(nn.Module):
         return lambda_occ * logits_loss + lambda_amt * pred_loss + lambda_lgt * lgt_loss
 
 class BCELoss(nn.Module):
+    """Simple BCE loss wrapper for binary classification."""
     def __init__(self):
         super().__init__()
         self.loss = nn.BCEWithLogitsLoss()
@@ -54,7 +56,13 @@ class BCELoss(nn.Module):
 
         return output
 
-class Regressor(torch.nn.Module): 
+class Regressor(torch.nn.Module):
+    """
+    U-Net-like multi-head model for:
+        - Rainfall amount regression
+        - Rain detection (occurrence)
+        - Lightning detection
+    """
     class BlockDown(nn.Module):
         def __init__(self, in_channels, out_channels, stride, dropout_prob=0.0):
             super().__init__()
@@ -132,10 +140,10 @@ class Regressor(torch.nn.Module):
         # Regressor head
         self.regressor = nn.Conv2d(in_channels, 1, kernel_size=1)
 
-        # Detection head
+        # Rain Detection head
         self.detector = nn.Conv2d(in_channels, 1, kernel_size=1)
 
-        # Lightning head
+        # Lightning Detection head
         self.lgt = nn.Conv2d(in_channels, 1, kernel_size=1)
 
     def forward(self, x):
@@ -161,6 +169,10 @@ class Regressor(torch.nn.Module):
         return self.regressor(out), self.detector(out), self.lgt(out)
 
 class Discriminator(torch.nn.Module): 
+    """
+    PatchGAN-style discriminator for GAN training.
+    Takes (input, prediction) concatenated as channels.
+    """
     class BlockDown(torch.nn.Module):
         def __init__(self, in_channels, out_channels, stride):
             super().__init__()

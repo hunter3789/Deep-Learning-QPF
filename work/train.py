@@ -8,7 +8,7 @@ import torch.utils.tensorboard as tb
 
 from load_dataset import load_data
 from metrics_regressor import ContingencyMetric
-from models import RegressorLoss, BCELoss, load_model, save_model, load_optimizer
+from models import MultiHeadLoss, BCELoss, load_model, save_model, load_optimizer
 
 def train(
     exp_dir: str = "logs",
@@ -72,7 +72,7 @@ def train(
 
     # create loss function and optimizer
     loss_func_dis = BCELoss()
-    loss_func_gen = RegressorLoss()
+    loss_func_gen = MultiHeadLoss()
 
     if (mode == "scratch"):
         optimizer_gen = torch.optim.AdamW(model_gen.parameters(), lr=lr, weight_decay=0.01)
