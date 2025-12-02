@@ -3,6 +3,9 @@
 **Paper**:  
 Pre-print paper is out! https://doi.org/10.48550/arXiv.2506.03842
 
+**Major Improvement (Nov 2025)**:  
+![image](comparison_sample.png)
+
 **Dataset**:  
 Training and validation dataset is at https://osf.io/ehwmv/files/osfstorage  
 
@@ -15,7 +18,7 @@ python train.py --epoch ${epoch}
 https://colab.research.google.com/github/hunter3789/Deep-Learning-QPF/blob/main/sample_inference.ipynb
   
 **Sample result**:  
-![demo](animation_sample.gif)
+![sample](animation_sample.gif)
   
 **Model architecture (updated!!!)**:
 ![demo](diagram.png)
